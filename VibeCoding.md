@@ -4,9 +4,11 @@ This is a record of me vibe coding this application for the curious. I did not r
 
 _"Create a simple Rust command-line application which converts PNG images to both JPG and WEBP formats and converts JPG images to WEBP format"_
 
-Kimi K2 wrote the code, did a build, made some corrections for some build errors, then completed the job. It worked as described. Then I thought: why not widen the scope? So I opened a new AI thread, and got busy. The text below is the AI panel's output. It shows my prompts as **User** or  **User (checkpoint)**. I was fascinated that the model initially insisted several times that the `image` crate provides lossy WebP conversions (it does not). But once I fed it the documentation URL stating that the conversion was in fact lossless, it admitted defeat and went seaching for another crate to add to the mix in order to make lossy conversions to get the file sizes smaller. It then created various temporary images and other file types to check its own code for errors and successful file size reduction, which worked like a charm.
+Kimi K2 wrote the code, did a build, made some corrections for some build errors, then completed the job. It worked as described.
 
-So here's how it went:
+Then I thought: why not widen the scope? So I opened a new AI thread, and got busy. The text below is the AI panel's output. It shows my prompts as **User** or **User (checkpoint)**. I was fascinated that the model initially insisted several times that the `image` crate provides lossy WebP conversions (it does not). But once I fed it the documentation URL stating that the conversion was in fact lossless, it admitted defeat and went seaching for another crate to add to the mix in order to make lossy conversions to get the file sizes smaller. It then created various temporary images and other file types to check its own code for errors and successful file size reduction.
+
+It built and amended the entire thing in just 10 prompts, 2 of which were asking to `continue` after it halted for some unknown reason. Here's how it went:
 
 ***
 
