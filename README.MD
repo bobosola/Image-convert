@@ -88,4 +88,4 @@ The binary will be available at `target/release/image-convert`.
 
 ## Acknowledgements
 
-This was entirely vibe-coded in [Zed](https://zed.dev) using  [Kimi CLI](https://github.com/MoonshotAI/kimi-cli) to access the Kimi K2 model via the [Agent Client Protocol (ACP)](https://zed.dev/acp). I did not examine the code _once_ from the inital build through the various the upgrades and changes. Kimi K2 even wrote and updated the README which was the **only** thing I edited in order to calm down its somewhat overly-boastful exuberance. It blows my mind what a good modern LLM can achieve.
+This was an experiment in 100% vibe-coding. I used [Zed](https://zed.dev) calling  [Kimi CLI](https://github.com/MoonshotAI/kimi-cli) to access the Kimi K2 model via the [Agent Client Protocol (ACP)](https://zed.dev/acp). I did not examine the code _at all_ through the inital build, nor through the subsequent upgrades and changes. Kimi K2 even wrote and updated the README which was the **only** thing I manually edited in order to calm down its exuberance a little. It blows my mind what a good modern LLM can achieve.
