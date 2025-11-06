@@ -1,10 +1,8 @@
 # Image Convert
 
-A simple command-line application which converts any supported image format to web-optimized JPG and WEBP formats.
+A simple command-line application which converts any supported image format to web-optimized JPG and WEBP formats. I made it because I can never remember any of the command options for the existing CLI image conversion tools.
 
-I use this for making web-friendly images from AI-generated PNGs. It was entirely vibe-coded in Zed using the [Kimi CLI](https://github.com/MoonshotAI/kimi-cli) to run Kimi K2 via the Agent Client Protocol (ACP). I made it because I can never remember any of the command options for the existing CLI image conversion tools.
-
-Its main purpose is to create images where the (smaller, faster) WebP image is the default, with the JPG image as fallback for older browsers:
+Its main purpose is to create images for web pages where the (smaller, faster) WebP image is the default, with the JPG image as fallback for older browsers:
 
 ```HTML
 <figure>
