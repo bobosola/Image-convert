@@ -42,7 +42,7 @@ I made it because I can never remember any of the command options for the existi
 - **Output**: JPG and WebP
 
 A notable unsupported file type is HEIF/HEIC images from Apple devices. But such devices allow for the easy exporting of HEIC photos as JPGs thus:
- - in the **Photos** App, select all the HEIC photos you want to convert - NB: ensure you do not select any videos or any other image types
+ - in the **Photos** app, select all the HEIC photos you want to convert - NB: ensure you do not select any videos or any other image types
  - hit the **Share** icon (bottom left)
  - then select **Copy Photos** - you won't see this option if you have selected a mix of media types, it only appears if **all** the selected photos are HEICs
  - go the **Files** app and create a new folder
