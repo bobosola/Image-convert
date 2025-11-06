@@ -57,9 +57,9 @@ Both JPG and WebP outputs use **lossy compression with default quality settings*
 - **WebP**: ~75% quality lossy compression - typically 50-70% smaller than JPG at equivalent quality
 
 These settings are **well suited for website use**, offering a good balance between:
-✅ **Fast loading times** (significantly smaller file sizes)
-✅ **Good visual quality** (minimal compression artifacts)
-✅ **Broad compatibility** (all modern browsers support both formats)
+- ✅ **Fast loading times** (significantly smaller file sizes)
+- ✅ **Good visual quality** (minimal compression artifacts)
+- ✅ **Broad compatibility** (all modern browsers support both formats)
 
 ## Error Handling
 
