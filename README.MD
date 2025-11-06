@@ -1,6 +1,9 @@
 # Image Convert
 
-A simple command-line application which converts any supported image format to web-optimized JPG and WEBP formats. I made it because I can never remember any of the command options for the existing CLI image conversion tools.
+A simple command-line application which converts any supported image format to web-optimized JPG and WEBP formats. I made it because I can never remember any of the command options for the existing CLI image conversion tools. Itsupports single files, multiple files, and wildcards like `*.png` in the format:
+
+`image-convert image.png` (or *.png, or *.jpg, etc.)
+
 
 Its main purpose is to create images for web pages where the (smaller, faster) WebP image is the default, with the JPG image as fallback for older browsers:
 
@@ -40,8 +43,6 @@ A notable exception is HEIF/HEIC images from Apple devices. But such devices all
 ```bash
 image-convert <FILE_PATTERN> [FILE_PATTERN]...
 ```
-
-Supports single files, multiple files, and wildcards like `*.png`
 
 ### Examples
 
