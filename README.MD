@@ -33,16 +33,13 @@ Its main purpose is to create images where the (smaller, faster) WebP image is t
 A notable exception is HEIF/HEIC images from Apple devices.
 
 <details>
-
     <summary>Automatic HEIC to JGP conversion on IOS devices</summary>
-
     But such devices allow for exporting HEIC photos as JPGs thus:
     - in the **Photos** App, select all the HEIC photos you want to convert - NB: ensure you do not select any videos or any other image types
     - hit the **Share** icon
     - then select **Copy Photos** - you won't see this option if you have selected a mix of media types
     - go the **Files** app and create a new folder
     - **long press** in a blank area of the folder, then select **paste** which will automatically convert your photos to JPGs
-
 </details>
 
 ## Usage
