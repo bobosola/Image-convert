@@ -44,7 +44,7 @@ I made it because I can never remember any of the command options for the existi
 A notable unsupported file type is HEIF/HEIC images from Apple devices. But such devices allow for the easy exporting of HEIC photos as JPGs thus:
  - in the **Photos** App, select all the HEIC photos you want to convert - NB: ensure you do not select any videos or any other image types
  - hit the **Share** icon (bottom left)
- - then select **Copy Photos** - you won't see this option if you have selected a mix of media types, it only appears if all the selected photos are HEICs
+ - then select **Copy Photos** - you won't see this option if you have selected a mix of media types, it only appears if **all** the selected photos are HEICs
  - go the **Files** app and create a new folder
  - **long press** in a blank area of the folder, then select **paste** which will automatically make JPG copies of the selected photos in the folder
 
@@ -61,13 +61,11 @@ These settings are **well suited for website use**, offering a good balance betw
 ✅ **Good visual quality** (minimal compression artifacts)
 ✅ **Broad compatibility** (all modern browsers support both formats)
 
-**Note**: WebP encoding uses the `webp` crate for proper lossy compression, providing much better compression than the `image` crate's default lossless encoding.
-
 ## Error Handling
 
 The application treats the following as errors:
 - The specified file does not exist
-- The file format is not supported by the image crate
+- The file format is not supported by the `image` crate
 - There are issues during the conversion process
 
 ## Installation
@@ -83,10 +81,10 @@ The binary will be available at `target/release/image-convert`.
 
 ## Dependencies
 
-- `image` - Image processing library
-- `clap` - Command-line argument parsing
-- `webp` - webp encoding/decoding library
-- `glob` - File pattern matching for wildcard support
+- `image` - the main image processing library
+- `clap` - command-line argument parsing
+- `webp` - webp encoding/decoding library with lossy compression
+- `glob` - file pattern matching for wildcard support
 
 ## Acknowledgements
 

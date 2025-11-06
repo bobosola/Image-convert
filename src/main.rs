@@ -21,6 +21,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     
     // Collect all files from the provided patterns
     let mut files_to_process = Vec::new();
+    let mut missing_files = 0;
+    let mut invalid_patterns = 0;
     
     for pattern in &args.file_patterns {
         // Check if it's a simple file (no wildcards)
@@ -29,7 +31,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             if path.exists() {
                 files_to_process.push(path);
             } else {
-                eprintln!("Warning: File '{}' does not exist", pattern);
+                missing_files += 1;
             }
         } else {
             // It's a wildcard pattern - use glob
@@ -44,14 +46,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     found_files = true;
                                 }
                             }
-                            Err(e) => eprintln!("Warning: Error accessing path: {}", e),
+                            Err(_) => {
+                                // Individual path error, continue with other matches
+                            }
                         }
                     }
                     if !found_files {
-                        eprintln!("Warning: No files found matching pattern '{}'", pattern);
+                        // Pattern matched no files - this is different from pattern syntax error
                     }
                 }
-                Err(e) => eprintln!("Warning: Invalid pattern '{}': {}", pattern, e),
+                Err(_) => {
+                    invalid_patterns += 1;
+                }
             }
         }
     }
@@ -60,22 +66,51 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Err("No valid files found to process".into());
     }
     
-    // Process all files
-    println!("Found {} file(s) to convert", files_to_process.len());
+    // Track conversion statistics
+    let total_files = files_to_process.len();
+    let mut converted_count = 0;
+    let mut unsupported_count = 0;
+    let mut error_count = 0;
     
-    for (i, file_path) in files_to_process.iter().enumerate() {
-        println!("\nProcessing file {} of {}: {}", i + 1, files_to_process.len(), file_path.display());
-        
-        if let Err(e) = convert_image(file_path) {
-            eprintln!("Error converting '{}': {}", file_path.display(), e);
-            // Continue with other files even if one fails
+    // Process all files with minimal output
+    for file_path in &files_to_process {
+        match convert_image_quiet(file_path) {
+            Ok(()) => {
+                converted_count += 1;
+            }
+            Err(e) => {
+                if e.to_string().contains("Unsupported") || e.to_string().contains("Decoding") {
+                    unsupported_count += 1;
+                } else {
+                    error_count += 1;
+                }
+            }
         }
     }
     
-    println!("\n✅ Bulk conversion complete!");
+    // Print summary
+    let _total_attempted = missing_files + invalid_patterns + total_files;
+    println!("\n📊 Conversion Summary:");
+    println!("  Converted: {} of {} files", converted_count, total_files);
+    
+    if unsupported_count > 0 {
+        println!("  Ignored: {} unsupported file format(s)", unsupported_count);
+    }
+    if missing_files > 0 {
+        println!("  Missing: {} file(s) not found", missing_files);
+    }
+    if invalid_patterns > 0 {
+        println!("  Invalid: {} pattern(s)", invalid_patterns);
+    }
+    if error_count > 0 {
+        println!("  Errors: {} file(s) failed to convert", error_count);
+    }
+    
+    println!("\n✅ Conversion complete!");
     Ok(())
 }
 
+#[allow(dead_code)]
 fn convert_image(file_path: &Path) -> Result<(), Box<dyn std::error::Error>> {
     println!("Converting image file: {}", file_path.display());
     
@@ -102,6 +137,35 @@ fn convert_image(file_path: &Path) -> Result<(), Box<dyn std::error::Error>> {
     // Write the WebP file
     std::fs::write(&webp_path, webp_data.as_ref())?;
     println!("Created WebP: {} (lossy, 75% quality)", webp_path.display());
+    
+    Ok(())
+}
+
+fn convert_image_quiet(file_path: &Path) -> Result<(), Box<dyn std::error::Error>> {
+    let img = image::open(file_path)?;
+    let parent_dir = file_path.parent().unwrap_or(Path::new("."));
+    let file_stem = file_path.file_stem().unwrap_or_default().to_str().unwrap_or("output");
+    
+    // Convert to JPG
+    let jpg_path = parent_dir.join(format!("{}.jpg", file_stem));
+    img.save_with_format(&jpg_path, ImageFormat::Jpeg)?;
+    
+    // Convert to WEBP using lossy compression with ~75% quality
+    let webp_path = parent_dir.join(format!("{}.webp", file_stem));
+    
+    // Convert image to RGB for WebP encoding
+    let rgb_img = img.to_rgb8();
+    let (width, height) = (rgb_img.width() as u32, rgb_img.height() as u32);
+    
+    // Create WebP encoder with lossy compression
+    let encoder = Encoder::from_rgb(&rgb_img, width, height);
+    let webp_data = encoder.encode(75.0); // 75% quality for optimal web performance
+    
+    // Write the WebP file
+    std::fs::write(&webp_path, webp_data.as_ref())?;
+    
+    // Only show the converted files, no verbose messages
+    println!("  {} → {} + {}", file_path.display(), jpg_path.display(), webp_path.display());
     
     Ok(())
 }
