@@ -15,10 +15,6 @@ So here's how it went:
 [@README.MD](file:///Users/bobosola/rust/image-convert/README.MD)
  [@main.rs](file:///Users/bobosola/rust/image-convert/src/main.rs) alter the application so that it can convert any image type supported by the image create into jpg or webp
 
-<details>
-
-<summary>AI response</summary>
-
 ## Assistant
 
 I'll help you modify the Rust image conversion application to support conversion from any image type supported by the `image` crate to JPG or WebP formats. Let me start by examining the current codebase to understand the existing structure.
@@ -346,8 +342,6 @@ I have successfully altered the image conversion application to support conversi
 - The release build compiles successfully without warnings
 
 The application is now more versatile and can handle virtually any image format you throw at it, automatically converting to web-friendly JPG and WebP formats.
-
-</details>
 
 # User (checkpoint)
 
