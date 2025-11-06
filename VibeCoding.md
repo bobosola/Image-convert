@@ -8,7 +8,7 @@ Kimi K2 wrote the code, did a build, made some corrections for some build errors
 
 Then I thought: why not widen the scope? So I opened a new AI thread, and got busy. The text below is the AI panel's output. It shows my prompts as **User** or **User (checkpoint)**. I was fascinated that the model initially insisted several times that the `image` crate provides lossy WebP conversions (it does not). But once I fed it the documentation URL stating that the conversion was in fact lossless, it admitted defeat and went seaching for another crate to add to the mix in order to make lossy conversions to get the file sizes smaller. It then created various temporary images and other file types to check its own code for errors and successful file size reduction.
 
-It built and amended the entire thing in just 10 prompts, 2 of which were asking it to `continue` after it halted for some unknown reason. Here's how it went:
+It built and amended the entire thing in just 10 prompts, 2 of which were asking it to `continue` after it halted for some unknown reason. Here's how it went, with all my prompt typos included:
 
 ***
 
