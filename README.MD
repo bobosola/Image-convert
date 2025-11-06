@@ -1,6 +1,6 @@
 # Image Convert
 
-A simple command-line application which converts any supported image format to web-optimized JPG and WEBP formats. I made it because I can never remember any of the command options for the existing CLI image conversion tools. Itsupports single files, multiple files, and wildcards like `*.png` in the format:
+A simple command-line application which converts any supported image format to web-optimized JPG and WEBP formats. I made it because I can never remember any of the command options for the existing CLI image conversion tools. There are no options, just enter the file names to be converted thus:
 
 `image-convert image.png` (or *.png, or *.jpg, etc.)
 
