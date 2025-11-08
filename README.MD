@@ -1,6 +1,6 @@
 # Image Convert
 
-`image-convert` has one job: it converts a variety of image types to JPG and WebP. It has no options, flags or anything to remember. You just enter the file name(s) to be converted:
+`image-convert` creates web-optimised JPG and WebP copies of each input image. It has no options, flags or anything to remember. You just enter the file name(s) to be converted:
 
 ```bash
 image-convert image.png
@@ -10,12 +10,12 @@ image-convert image.png
 # or (for bash users) image-convert "*.{png,jpg,bmp}"
 # or even just image-convert *
 ```
-`image-convert` will produce a `.jpg` and  a `.webp` version of all the input image files it knows how to handle.
+The JPG and WebP copies are created in the same location as the input images and have the same name as the original images.
 
 > [!NOTE]
-> If you feed it existing `.jpg` or `.webp` files it will re-compress them, likely making them much smaller unless they are already well optimised. In such cases I suggest working on copies of the originals to check that the quality is not degraded.
+> If you feed `image-convert` existing JPG or webp files, it will re-compress the original images which (unless they are already well optimised) will likely make them much smaller. In such cases I recommend working on safety copies of the original images to check that the image quality does not get unacceptably reduced.
 
-I made it because I can never remember any of the command options for the existing CLI image conversion tools. Its main purpose is to create images for web pages where the (smaller, faster) WebP image is the default, with the JPG image as fallback for older browsers, for example:
+I made `image-convert` because I can never remember any of the command options for the existing CLI image conversion tools. Its main purpose is to create images from non-web or large sized image formats for use in web pages where the (smaller, faster) WebP image is the default, with the JPG image as fallback for older browsers. For example:
 
 ```HTML
 <figure>
@@ -46,7 +46,7 @@ A notable unsupported file type is HEIF/HEIC images from Apple devices. But such
  - hit the **Share** icon (bottom left)
  - then select **Copy Photos** - you won't see this option if you have selected a mix of media types, it only appears if **all** the selected photos are HEICs
  - go the **Files** app and create a new folder
- - **long press** in a blank area of the folder, then select **paste** which will automatically make JPG copies of the selected photos in the folder
+ - **long press** in a blank area of the folder, then select **paste** to automatically make JPG copies of the selected photos in the folder
 
 
 ## Compression Settings
@@ -88,4 +88,4 @@ The binary will be available at `target/release/image-convert`.
 
 ## Acknowledgements
 
-This was an experiment in 100% vibe-coding. I used [Zed](https://zed.dev) calling  [Kimi CLI](https://github.com/MoonshotAI/kimi-cli) to access the Kimi K2 model via the [Agent Client Protocol (ACP)](https://zed.dev/acp). I did not examine the code _at all_ through the inital build, nor through the subsequent upgrades and changes. Kimi K2 even wrote and updated the README which was the **only** thing I manually edited in order to calm down its exuberance a little. It blows my mind what a good modern LLM can achieve.
+This was an experiment in 100% vibe-coding. I used [Zed](https://zed.dev) calling  [Kimi CLI](https://github.com/MoonshotAI/kimi-cli) to access the Kimi K2 model. I did not examine the code _at all_ throughout the inital build, nor through the subsequent feature additions and changes. Kimi K2 even wrote and updated the README which was the **only** thing I manually edited in order to calm down its exuberance.
