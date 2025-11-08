@@ -25,7 +25,7 @@ The binary will be available at `target/release/image-convert`
 
 Convert a single image to WebP:
 ```bash
-image-convertphoto.png
+image-convert photo.png
 ```
 
 Convert multiple images with wildcards:
@@ -51,7 +51,7 @@ image-convert *.png --quality 85
 
 Convert images and resize to 800px width:
 ```bash
-image-convertphotos/* --max-width 800 --output optimized/
+image-convert photos/* --max-width 800 --output optimized/
 ```
 
 Convert to both WebP and JPEG:
