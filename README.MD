@@ -1,4 +1,4 @@
-# Image Optimizer
+# Image Convert
 
 A fast and efficient Rust CLI tool for converting images to web-optimized formats (WebP and JPEG).
 
@@ -17,7 +17,7 @@ A fast and efficient Rust CLI tool for converting images to web-optimized format
 cargo build --release
 ```
 
-The binary will be available at `target/release/image_optimizer`
+The binary will be available at `target/release/image-convert`
 
 ## Usage
 
@@ -25,12 +25,12 @@ The binary will be available at `target/release/image_optimizer`
 
 Convert a single image to WebP:
 ```bash
-image_optimizer photo.png
+image-convertphoto.png
 ```
 
 Convert multiple images with wildcards:
 ```bash
-image_optimizer images/*.png photos/*.jpg
+image-convert images/*.png photos/*.jpg
 ```
 
 ### Options
@@ -46,22 +46,22 @@ image_optimizer images/*.png photos/*.jpg
 
 Convert all PNGs to WebP with 85% quality (higher quality):
 ```bash
-image_optimizer *.png --quality 85
+image-convert *.png --quality 85
 ```
 
 Convert images and resize to 800px width:
 ```bash
-image_optimizer photos/* --max-width 800 --output optimized/
+image-convertphotos/* --max-width 800 --output optimized/
 ```
 
 Convert to both WebP and JPEG:
 ```bash
-image_optimizer image.png --jpeg --quality 80 --jpeg-quality 80
+image-convert image.png --jpeg --quality 80 --jpeg-quality 80
 ```
 
 Process with wildcards from different directories:
 ```bash
-image_optimizer assets/images/*.png assets/photos/*.jpg --output dist/
+image-convert assets/images/*.png assets/photos/*.jpg --output dist/
 ```
 
 ## Supported Input Formats
@@ -108,10 +108,10 @@ The default quality of **75%** is optimized for web performance while maintainin
 You can easily adjust quality based on your needs:
 ```bash
 # Maximum quality for critical images
-image_optimizer photo.png --quality 95
+image-convert photo.png --quality 95
 
 # Lower quality for thumbnails (even smaller files)
-image_optimizer *.png --quality 65
+image-convert *.png --quality 65
 ```
 
 ## Performance
