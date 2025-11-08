@@ -1,171 +1,218 @@
 use clap::Parser;
-use image::ImageFormat;
+use image::{DynamicImage, GenericImageView, ImageFormat};
 use std::path::{Path, PathBuf};
-use webp::Encoder;
-use glob::glob;
+use std::fs;
 
 #[derive(Parser, Debug)]
-#[command(name = "image-convert")]
-#[command(about = "Convert any supported image format to JPG and WebP")]
+#[command(name = "image-optimizer")]
+#[command(about = "Convert images to web-optimized formats")]
 struct Args {
-    #[arg(help = "Path(s) to image files - can be single file, multiple files, or wildcards like *.png")]
-    file_patterns: Vec<String>,
+    /// Input image files (supports wildcards like *.png)
+    #[arg(required = true)]
+    input: Vec<String>,
+
+    /// Output directory (defaults to current directory)
+    #[arg(short, long, default_value = ".")]
+    output: PathBuf,
+
+    /// WebP quality (1-100, higher is better quality)
+    #[arg(short = 'q', long, default_value = "75")]
+    quality: u8,
+
+    /// Resize images to maximum width (maintains aspect ratio)
+    #[arg(short = 'w', long)]
+    max_width: Option<u32>,
+
+    /// Also convert to JPEG format
+    #[arg(long)]
+    jpeg: bool,
+
+    /// JPEG quality (1-100)
+    #[arg(long, default_value = "75")]
+    jpeg_quality: u8,
+
+    /// Overwrite existing files
+    #[arg(short, long)]
+    force: bool,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
     
-    if args.file_patterns.is_empty() {
-        return Err("No file patterns specified. Use: image-convert <file(s)> or image-convert *.png".into());
+    // Create output directory if it doesn't exist
+    if !args.output.exists() {
+        fs::create_dir_all(&args.output)?;
     }
+
+    // Expand wildcards and collect all input files
+    let input_files = expand_input_files(&args.input)?;
     
-    // Collect all files from the provided patterns
-    let mut files_to_process = Vec::new();
-    let mut missing_files = 0;
-    let mut invalid_patterns = 0;
-    
-    for pattern in &args.file_patterns {
-        // Check if it's a simple file (no wildcards)
-        if !pattern.contains('*') && !pattern.contains('?') && !pattern.contains('[') {
-            let path = PathBuf::from(pattern);
-            if path.exists() {
-                files_to_process.push(path);
-            } else {
-                missing_files += 1;
-            }
-        } else {
-            // It's a wildcard pattern - use glob
-            match glob(pattern) {
-                Ok(paths) => {
-                    let mut found_files = false;
-                    for entry in paths {
-                        match entry {
-                            Ok(path) => {
-                                if path.is_file() {
-                                    files_to_process.push(path);
-                                    found_files = true;
-                                }
-                            }
-                            Err(_) => {
-                                // Individual path error, continue with other matches
-                            }
-                        }
-                    }
-                    if !found_files {
-                        // Pattern matched no files - this is different from pattern syntax error
-                    }
-                }
-                Err(_) => {
-                    invalid_patterns += 1;
-                }
-            }
-        }
+    if input_files.is_empty() {
+        eprintln!("No input files found!");
+        std::process::exit(1);
     }
-    
-    if files_to_process.is_empty() {
-        return Err("No valid files found to process".into());
-    }
-    
-    // Track conversion statistics
-    let total_files = files_to_process.len();
-    let mut converted_count = 0;
-    let mut unsupported_count = 0;
-    let mut error_count = 0;
-    
-    // Process all files with minimal output
-    for file_path in &files_to_process {
-        match convert_image_quiet(file_path) {
-            Ok(()) => {
-                converted_count += 1;
+
+    println!("Found {} image file(s) to process", input_files.len());
+
+    // Process each file
+    let mut success_count = 0;
+    let mut fail_count = 0;
+
+    for input_path in input_files {
+        match process_image(&input_path, &args) {
+            Ok(_) => {
+                println!("✓ Processed: {}", input_path.display());
+                success_count += 1;
             }
             Err(e) => {
-                if e.to_string().contains("Unsupported") || e.to_string().contains("Decoding") {
-                    unsupported_count += 1;
-                } else {
-                    error_count += 1;
-                }
+                eprintln!("✗ Failed to process {}: {}", input_path.display(), e);
+                fail_count += 1;
             }
         }
     }
+
+    println!("\nSummary: {} succeeded, {} failed", success_count, fail_count);
     
-    // Print summary
-    let _total_attempted = missing_files + invalid_patterns + total_files;
-    println!("\n📊 Conversion Summary:");
-    println!("  Converted: {} of {} files", converted_count, total_files);
-    
-    if unsupported_count > 0 {
-        println!("  Ignored: {} unsupported file format(s)", unsupported_count);
+    if fail_count > 0 {
+        std::process::exit(1);
     }
-    if missing_files > 0 {
-        println!("  Missing: {} file(s) not found", missing_files);
-    }
-    if invalid_patterns > 0 {
-        println!("  Invalid: {} pattern(s)", invalid_patterns);
-    }
-    if error_count > 0 {
-        println!("  Errors: {} file(s) failed to convert", error_count);
-    }
-    
-    println!("\n✅ Conversion complete!");
+
     Ok(())
 }
 
-#[allow(dead_code)]
-fn convert_image(file_path: &Path) -> Result<(), Box<dyn std::error::Error>> {
-    println!("Converting image file: {}", file_path.display());
+fn expand_input_files(input_patterns: &[String]) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
+    let mut files = Vec::new();
+
+    for pattern in input_patterns {
+        // Check if pattern contains wildcards
+        if pattern.contains('*') || pattern.contains('?') || pattern.contains('[') {
+            // Use glob to expand wildcards
+            for entry in glob::glob(pattern)? {
+                match entry {
+                    Ok(path) => {
+                        if is_supported_image(&path) {
+                            files.push(path);
+                        }
+                    }
+                    Err(e) => eprintln!("Error reading glob pattern {}: {}", pattern, e),
+                }
+            }
+        } else {
+            // No wildcards, treat as single file
+            let path = PathBuf::from(pattern);
+            if path.exists() && is_supported_image(&path) {
+                files.push(path);
+            }
+        }
+    }
+
+    // Remove duplicates while preserving order
+    let mut unique_files = Vec::new();
+    for file in files {
+        if !unique_files.contains(&file) {
+            unique_files.push(file);
+        }
+    }
+
+    Ok(unique_files)
+}
+
+fn is_supported_image(path: &Path) -> bool {
+    if !path.is_file() {
+        return false;
+    }
+
+    let supported_extensions = ["png", "jpg", "jpeg", "gif", "bmp", "tiff", "tif", "webp"];
     
-    let img = image::open(file_path)?;
-    let parent_dir = file_path.parent().unwrap_or(Path::new("."));
-    let file_stem = file_path.file_stem().unwrap_or_default().to_str().unwrap_or("output");
+    if let Some(ext) = path.extension() {
+        if let Some(ext_str) = ext.to_str() {
+            return supported_extensions.contains(&ext_str.to_lowercase().as_str());
+        }
+    }
     
-    // Convert to JPG
-    let jpg_path = parent_dir.join(format!("{}.jpg", file_stem));
-    img.save_with_format(&jpg_path, ImageFormat::Jpeg)?;
-    println!("Created JPG: {}", jpg_path.display());
+    false
+}
+
+fn process_image(input_path: &Path, args: &Args) -> Result<(), Box<dyn std::error::Error>> {
+    // Load the image
+    let img = image::open(input_path)?;
     
-    // Convert to WEBP using lossy compression with ~75% quality
-    let webp_path = parent_dir.join(format!("{}.webp", file_stem));
+    // Resize if max_width is specified
+    let processed_img = if let Some(max_width) = args.max_width {
+        resize_image(img, max_width)
+    } else {
+        img
+    };
+
+    // Get filename without extension
+    let file_stem = input_path.file_stem()
+        .ok_or("Invalid filename")?
+        .to_str()
+        .ok_or("Invalid filename encoding")?;
+
+    // Convert to WebP
+    let webp_path = args.output.join(format!("{}.webp", file_stem));
     
-    // Convert image to RGB for WebP encoding
-    let rgb_img = img.to_rgb8();
-    let (width, height) = (rgb_img.width() as u32, rgb_img.height() as u32);
+    if !webp_path.exists() || args.force {
+        save_as_webp(&processed_img, &webp_path, args.quality)?;
+        println!("  → Created: {}", webp_path.display());
+    } else {
+        println!("  → Skipped (already exists): {}", webp_path.display());
+    }
+
+    // Convert to JPEG if requested
+    if args.jpeg {
+        let jpeg_path = args.output.join(format!("{}.jpg", file_stem));
+        
+        if !jpeg_path.exists() || args.force {
+            save_as_jpeg(&processed_img, &jpeg_path, args.jpeg_quality)?;
+            println!("  → Created: {}", jpeg_path.display());
+        } else {
+            println!("  → Skipped (already exists): {}", jpeg_path.display());
+        }
+    }
+
+    Ok(())
+}
+
+fn resize_image(img: DynamicImage, max_width: u32) -> DynamicImage {
+    let (width, height) = img.dimensions();
     
-    // Create WebP encoder with lossy compression
-    let encoder = Encoder::from_rgb(&rgb_img, width, height);
-    let webp_data = encoder.encode(75.0); // 75% quality for optimal web performance
+    if width <= max_width {
+        return img;
+    }
     
-    // Write the WebP file
-    std::fs::write(&webp_path, webp_data.as_ref())?;
-    println!("Created WebP: {} (lossy, 75% quality)", webp_path.display());
+    let ratio = max_width as f32 / width as f32;
+    let new_height = (height as f32 * ratio) as u32;
+    
+    img.resize(max_width, new_height, image::imageops::FilterType::Lanczos3)
+}
+
+fn save_as_webp(img: &DynamicImage, path: &Path, quality: u8) -> Result<(), Box<dyn std::error::Error>> {
+    // Clamp quality to valid range
+    let quality = quality.clamp(1, 100);
+    
+    // Convert to RGBA8 for webp encoding
+    let rgba_img = img.to_rgba8();
+    let (width, height) = rgba_img.dimensions();
+    
+    // Create WebP encoder
+    let encoder = webp::Encoder::from_rgba(&rgba_img, width, height);
+    let webp_data = encoder.encode(quality as f32);
+    
+    // Write to file
+    fs::write(path, &*webp_data)?;
     
     Ok(())
 }
 
-fn convert_image_quiet(file_path: &Path) -> Result<(), Box<dyn std::error::Error>> {
-    let img = image::open(file_path)?;
-    let parent_dir = file_path.parent().unwrap_or(Path::new("."));
-    let file_stem = file_path.file_stem().unwrap_or_default().to_str().unwrap_or("output");
+fn save_as_jpeg(img: &DynamicImage, path: &Path, quality: u8) -> Result<(), Box<dyn std::error::Error>> {
+    // Clamp quality to valid range
+    let _quality = quality.clamp(1, 100);
     
-    // Convert to JPG
-    let jpg_path = parent_dir.join(format!("{}.jpg", file_stem));
-    img.save_with_format(&jpg_path, ImageFormat::Jpeg)?;
-    
-    // Convert to WEBP using lossy compression with ~75% quality
-    let webp_path = parent_dir.join(format!("{}.webp", file_stem));
-    
-    // Convert image to RGB for WebP encoding
-    let rgb_img = img.to_rgb8();
-    let (width, height) = (rgb_img.width() as u32, rgb_img.height() as u32);
-    
-    // Create WebP encoder with lossy compression
-    let encoder = Encoder::from_rgb(&rgb_img, width, height);
-    let webp_data = encoder.encode(75.0); // 75% quality for optimal web performance
-    
-    // Write the WebP file
-    std::fs::write(&webp_path, webp_data.as_ref())?;
-    
-    // Only show the converted files, no verbose messages
-    println!("  {} → {} + {}", file_path.display(), jpg_path.display(), webp_path.display());
+    // Save as JPEG
+    let mut output_file = fs::File::create(path)?;
+    img.write_to(&mut output_file, ImageFormat::Jpeg)?;
     
     Ok(())
 }
