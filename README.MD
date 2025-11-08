@@ -125,3 +125,8 @@ The tool uses optimized Rust libraries for fast image processing:
 ## License
 
 MIT
+
+
+## Acknowledgements
+
+This was an experiment in 100% vibe-coding. I used [Zed](https://zed.dev) calling  [Kimi CLI](https://github.com/MoonshotAI/kimi-cli) to access the Kimi K2 Thinking model. Kimi even wrote and the README which was the **only** thing I manually edited in order to add this acknowledgement.
