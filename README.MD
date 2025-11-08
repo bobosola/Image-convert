@@ -129,4 +129,4 @@ MIT
 
 ## Acknowledgements
 
-This was an experiment in 100% vibe-coding. I used [Zed](https://zed.dev) calling  [Kimi CLI](https://github.com/MoonshotAI/kimi-cli) to access the Kimi K2 Thinking model. Kimi even wrote and the README which was the **only** thing I manually edited in order to add this acknowledgement.
+This was an experiment in 100% vibe-coding. I used [Zed](https://zed.dev) calling  [Kimi CLI](https://github.com/MoonshotAI/kimi-cli) to access the **Kimi K2 Thinking** model. This acknowledgement section was the **only** thing I added throughout the whole process. The code and the rest of this README is exactly as written by the model.
