@@ -13,19 +13,9 @@ image-convert image.png
 The JPG and WebP copies are created in the same location as the input images and have the same name as the original images.
 
 > [!NOTE]
-> If you feed `image-convert` existing JPG or webp files, it will re-compress the original images which (unless they are already well optimised) will likely make them much smaller. In such cases I recommend working on safety copies of the original images to check that the image quality does not get unacceptably reduced.
+> If you feed `image-convert` existing JPG or WebP files, it will re-compress the original images which (unless they are already well optimised) will likely make them much smaller. In such cases I recommend working on safety copies of the original images to check that the image quality does not get unacceptably reduced.
 
-I made `image-convert` because I can never remember any of the command options for the existing CLI image conversion tools. Its main purpose is to create images from non-web or large sized image formats for use in web pages where the (smaller, faster) WebP image is the default, with the JPG image as fallback for older browsers. For example:
-
-```HTML
-<figure>
-   <picture>
-       <source type="image/webp" srcset="photos/meal.webp">
-       <img src="photos/mealjpg" width="960" height="540" alt="Eating a meal" loading="lazy">
-   </picture>
-   <figcaption><em>Eating out</em></figcaption>
-</figure>
-```
+I made `image-convert` because I can never remember any of the command options for the existing CLI image conversion tools. Its main purpose is to create images from non-web or large sized image formats for use in web pages where the (smaller, faster) WebP image is the default, with the JPG image as fallback for older browsers.
 
 ## Features
 
