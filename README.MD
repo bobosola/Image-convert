@@ -129,4 +129,4 @@ MIT
 
 ## Acknowledgements
 
-This was an experiment in 100% vibe-coding. I used [Zed](https://zed.dev) calling  [Kimi CLI](https://github.com/MoonshotAI/kimi-cli) to access the **Kimi K2 Thinking** model. This acknowledgement section was the **only** thing I added throughout the whole process. The code and the rest of this README is exactly as written by the model.
+This was an experiment in 100% vibe-coding. I used [Zed](https://zed.dev) calling  [Kimi CLI](https://github.com/MoonshotAI/kimi-cli) to access the **Kimi K2 Thinking** model. This acknowledgement section was the **only** thing I added throughout the whole process. The code and the rest of this README is exactly as written by the model, other than me changing the name from _image-optimizer_ to _image-convert_ to avoid having to remember whether it was _optimizer_ with a _z_ (USA style) or _optimiser_ with an _s_ (UK style).
