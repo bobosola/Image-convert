@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Convert - WebP Converter</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #111;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .drop-zone {
+            border: 3px dashed #5b9bd5;
+            border-radius: 8px;
+            padding: 60px 40px;
+            text-align: center;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            background: #eef1ff;
+            border-color: #4a7fc1;
+            transform: translateY(-2px);
+        }
+
+        .drop-zone.dragover {
+            background: #e0e5ff;
+        }
+
+        .drop-zone-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.7;
+        }
+
+        .drop-zone-text {
+            font-size: 1.2rem;
+            color: #222;
+            margin-bottom: 10px;
+        }
+
+        .drop-zone-hint {
+            font-size: 0.9rem;
+            color: #444;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-group .description {
+            font-size: 0.85rem;
+            color: #444;
+            margin-bottom: 8px;
+            font-weight: normal;
+        }
+
+        .quality-note {
+            font-size: 0.8rem;
+            color: #333;
+            margin-top: 6px;
+            font-style: italic;
+            line-height: 1.4;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #ddd;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            background: #5b9bd5;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #4a7fc1;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            background: #5b9bd5;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            min-width: 50px;
+            text-align: center;
+            font-weight: 600;
+            color: #5b9bd5;
+            font-size: 1.1rem;
+        }
+
+        input[type="number"] {
+            padding: 10px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            width: 100%;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #5b9bd5;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            accent-color: #5b9bd5;
+        }
+
+        .checkbox-label {
+            font-size: 1rem;
+            color: #222;
+            cursor: pointer;
+        }
+
+        .file-list {
+            margin-top: 20px;
+        }
+
+        .file-list h3 {
+            margin-bottom: 15px;
+            color: #222;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 4px solid #5b9bd5;
+        }
+
+        .file-item.processing {
+            border-left-color: #ffc107;
+        }
+
+        .file-item.success {
+            border-left-color: #28a745;
+        }
+
+        .file-item.error {
+            border-left-color: #dc3545;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #111;
+            word-break: break-all;
+        }
+
+        .file-status {
+            font-size: 0.85rem;
+            color: #444;
+            margin-top: 4px;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #5b9bd5;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd6;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .progress-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #5b9bd5, #4a7fc1);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        footer {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            margin-top: 30px;
+            font-size: 0.9rem;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: #222;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .drop-zone {
+                padding: 40px 20px;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🖼️ Image Convert</h1>
+            <p>Convert your images to WebP format directly in your browser</p>
+        </header>
+
+        <div class="card">
+            <div class="info-box">
+                <p><strong>Supported formats:</strong> PNG, JPG, JPEG, GIF, BMP, TIFF, WebP</p>
+            </div>
+
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-icon">📁</div>
+                <div class="drop-zone-text">Drag & drop images here</div>
+                <div class="drop-zone-hint">or click to browse files</div>
+            </div>
+            <input type="file" id="fileInput" class="file-input" multiple accept="image/png,image/jpeg,image/jpg,image/gif,image/bmp,image/tiff,image/webp">
+
+            <div class="controls">
+                <div class="control-group">
+                    <label for="qualitySlider">WebP Quality</label>
+                    <span class="description">Higher quality = larger file size</span>
+                    <div class="slider-container">
+                        <input type="range" id="qualitySlider" min="1" max="100" value="75">
+                        <span class="slider-value" id="qualityValue">75%</span>
+                    </div>
+                    <p class="quality-note">75% is the web standard - provides excellent visual quality while keeping file sizes small for faster page loads. Higher values increase file size with minimal visible improvement.</p>
+                </div>
+
+                <div class="control-group">
+                    <label for="jpegQualitySlider">JPEG Quality</label>
+                    <span class="description">Used when JPEG output is enabled</span>
+                    <div class="slider-container">
+                        <input type="range" id="jpegQualitySlider" min="1" max="100" value="75">
+                        <span class="slider-value" id="jpegQualityValue">75%</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="maxWidth">Max Width (px)</label>
+                    <span class="description">Resize image to maximum width (optional)</span>
+                    <input type="number" id="maxWidth" min="1" max="10000" placeholder="Original size">
+                </div>
+
+                <div class="control-group">
+                    <label>Output Options</label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="convertToJpeg">
+                        <span class="checkbox-label">Also convert to JPEG</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="card hidden" id="fileListCard">
+            <div class="file-list">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin: 0;">Selected Files</h3>
+                    <div>
+                        <button class="btn-primary" id="convertAllBtn">Convert All</button>
+                        <button class="btn-secondary" id="clearBtn">Clear All</button>
+                    </div>
+                </div>
+                <div id="fileList"></div>
+            </div>
+
+            <div class="progress-container hidden" id="progressContainer">
+                <div>Converting images...</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div id="progressText">0 / 0</div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Powered by Rust & WebAssembly • All processing happens locally in your browser</p>
+        </footer>
+    </div>
+
+    <script type="module">
+        // WASM glue code (generated by wasm-pack)
+        let wasm;
+
+        function debugString(val) {
+            const type = typeof val;
+            if (type == 'number' || type == 'boolean' || val == null) {
+                return `${val}`;
+            }
+            if (type == 'string') {
+                return `"${val}"`;
+            }
+            if (type == 'symbol') {
+                const description = val.description;
+                if (description == null) {
+                    return 'Symbol';
+                } else {
+                    return `Symbol(${description})`;
+                }
+            }
+            if (type == 'function') {
+                const name = val.name;
+                if (typeof name == 'string' && name.length > 0) {
+                    return `Function(${name})`;
+                } else {
+                    return 'Function';
+                }
+            }
+            if (Array.isArray(val)) {
+                const length = val.length;
+                let debug = '[';
+                if (length > 0) {
+                    debug += debugString(val[0]);
+                }
+                for(let i = 1; i < length; i++) {
+                    debug += ', ' + debugString(val[i]);
+                }
+                debug += ']';
+                return debug;
+            }
+            const builtInMatches = /\[object ([^\]]+)\]/.exec(toString.call(val));
+            let className;
+            if (builtInMatches && builtInMatches.length > 1) {
+                className = builtInMatches[1];
+            } else {
+                return toString.call(val);
+            }
+            if (className == 'Object') {
+                try {
+                    return 'Object(' + JSON.stringify(val) + ')';
+                } catch (_) {
+                    return 'Object';
+                }
+            }
+            if (val instanceof Error) {
+                return `${val.name}: ${val.message}\n${val.stack}`;
+            }
+            return className;
+        }
+
+        let WASM_VECTOR_LEN = 0;
+        let cachedUint8ArrayMemory0 = null;
+
+        function getUint8ArrayMemory0() {
+            if (cachedUint8ArrayMemory0 === null || cachedUint8ArrayMemory0.byteLength === 0) {
+                cachedUint8ArrayMemory0 = new Uint8Array(wasm.memory.buffer);
+            }
+            return cachedUint8ArrayMemory0;
+        }
+
+        const cachedTextEncoder = new TextEncoder();
+
+        if (!('encodeInto' in cachedTextEncoder)) {
+            cachedTextEncoder.encodeInto = function (arg, view) {
+                const buf = cachedTextEncoder.encode(arg);
+                view.set(buf);
+                return {
+                    read: arg.length,
+                    written: buf.length
+                };
+            }
+        }
+
+        function passStringToWasm0(arg, malloc, realloc) {
+            if (realloc === undefined) {
+                const buf = cachedTextEncoder.encode(arg);
+                const ptr = malloc(buf.length, 1) >>> 0;
+                getUint8ArrayMemory0().subarray(ptr, ptr + buf.length).set(buf);
+                WASM_VECTOR_LEN = buf.length;
+                return ptr;
+            }
+
+            let len = arg.length;
+            let ptr = malloc(len, 1) >>> 0;
+            const mem = getUint8ArrayMemory0();
+
+            let offset = 0;
+            for (; offset < len; offset++) {
+                const code = arg.charCodeAt(offset);
+                if (code > 0x7F) break;
+                mem[ptr + offset] = code;
+            }
+
+            if (offset !== len) {
+                if (offset !== 0) {
+                    arg = arg.slice(offset);
+                }
+                ptr = realloc(ptr, len, len = offset + arg.length * 3, 1) >>> 0;
+                const view = getUint8ArrayMemory0().subarray(ptr + offset, ptr + len);
+                const ret = cachedTextEncoder.encodeInto(arg, view);
+                offset += ret.written;
+                ptr = realloc(ptr, len, offset, 1) >>> 0;
+            }
+
+            WASM_VECTOR_LEN = offset;
+            return ptr;
+        }
+
+        let cachedDataViewMemory0 = null;
+
+        function getDataViewMemory0() {
+            if (cachedDataViewMemory0 === null || cachedDataViewMemory0.buffer.detached === true || (cachedDataViewMemory0.buffer.detached === undefined && cachedDataViewMemory0.buffer !== wasm.memory.buffer)) {
+                cachedDataViewMemory0 = new DataView(wasm.memory.buffer);
+            }
+            return cachedDataViewMemory0;
+        }
+
+        let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
+        cachedTextDecoder.decode();
+
+        const MAX_SAFARI_DECODE_BYTES = 2146435072;
+        let numBytesDecoded = 0;
+
+        function decodeText(ptr, len) {
+            numBytesDecoded += len;
+            if (numBytesDecoded >= MAX_SAFARI_DECODE_BYTES) {
+                cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
+                cachedTextDecoder.decode();
+                numBytesDecoded = len;
+            }
+            return cachedTextDecoder.decode(getUint8ArrayMemory0().subarray(ptr, ptr + len));
+        }
+
+        function getStringFromWasm0(ptr, len) {
+            ptr = ptr >>> 0;
+            return decodeText(ptr, len);
+        }
+
+        function passArray8ToWasm0(arg, malloc) {
+            const ptr = malloc(arg.length * 1, 1) >>> 0;
+            getUint8ArrayMemory0().set(arg, ptr / 1);
+            WASM_VECTOR_LEN = arg.length;
+            return ptr;
+        }
+
+        function isLikeNone(x) {
+            return x === undefined || x === null;
+        }
+
+        function convert_image(image_bytes, filename, webp_quality, jpeg_quality, max_width, convert_to_jpeg) {
+            const ptr0 = passArray8ToWasm0(image_bytes, wasm.__wbindgen_malloc);
+            const len0 = WASM_VECTOR_LEN;
+            const ptr1 = passStringToWasm0(filename, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len1 = WASM_VECTOR_LEN;
+            const ret = wasm.convert_image(ptr0, len0, ptr1, len1, webp_quality, jpeg_quality, isLikeNone(max_width) ? 0x100000001 : (max_width) >>> 0, convert_to_jpeg);
+            return ret;
+        }
+
+        function is_supported_image_file(filename) {
+            const ptr0 = passStringToWasm0(filename, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            const ret = wasm.is_supported_image_file(ptr0, len0);
+            return ret !== 0;
+        }
+
+        function start_wasm() {
+            wasm.start();
+        }
+
+        const EXPECTED_RESPONSE_TYPES = new Set(['basic', 'cors', 'default']);
+
+        async function __wbg_load(module, imports) {
+            if (typeof Response === 'function' && module instanceof Response) {
+                if (typeof WebAssembly.instantiateStreaming === 'function') {
+                    try {
+                        return await WebAssembly.instantiateStreaming(module, imports);
+                    } catch (e) {
+                        const validResponse = module.ok && EXPECTED_RESPONSE_TYPES.has(module.type);
+                        if (validResponse && module.headers.get('Content-Type') !== 'application/wasm') {
+                            console.warn("`WebAssembly.instantiateStreaming` failed because your server does not serve Wasm with `application/wasm` MIME type. Falling back to `WebAssembly.instantiate` which is slower.");
+                        } else {
+                            throw e;
+                        }
+                    }
+                }
+                const bytes = await module.arrayBuffer();
+                return await WebAssembly.instantiate(bytes, imports);
+            } else {
+                const instance = await WebAssembly.instantiate(module, imports);
+                if (instance instanceof WebAssembly.Instance) {
+                    return { instance, module };
+                } else {
+                    return instance;
+                }
+            }
+        }
+
+        function __wbg_get_imports() {
+            const imports = {};
+            imports.wbg = {};
+            imports.wbg.__wbg___wbindgen_debug_string_df47ffb5e35e6763 = function(arg0, arg1) {
+                const ret = debugString(arg1);
+                const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+                const len1 = WASM_VECTOR_LEN;
+                getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
+                getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
+            };
+            imports.wbg.__wbg___wbindgen_throw_b855445ff6a94295 = function(arg0, arg1) {
+                throw new Error(getStringFromWasm0(arg0, arg1));
+            };
+            imports.wbg.__wbg_error_7534b8e9a36f1ab4 = function(arg0, arg1) {
+                let deferred0_0;
+                let deferred0_1;
+                try {
+                    deferred0_0 = arg0;
+                    deferred0_1 = arg1;
+                    console.error(getStringFromWasm0(arg0, arg1));
+                } finally {
+                    wasm.__wbindgen_free(deferred0_0, deferred0_1, 1);
+                }
+            };
+            imports.wbg.__wbg_new_1acc0b6eea89d040 = function() {
+                const ret = new Object();
+                return ret;
+            };
+            imports.wbg.__wbg_new_8a6f238a6ece86ea = function() {
+                const ret = new Error();
+                return ret;
+            };
+            imports.wbg.__wbg_new_e17d9f43105b08be = function() {
+                const ret = new Array();
+                return ret;
+            };
+            imports.wbg.__wbg_set_3f1d0b984ed272ed = function(arg0, arg1, arg2) {
+                arg0[arg1] = arg2;
+            };
+            imports.wbg.__wbg_set_c213c871859d6500 = function(arg0, arg1, arg2) {
+                arg0[arg1 >>> 0] = arg2;
+            };
+            imports.wbg.__wbg_stack_0ed75d68575b0f3c = function(arg0, arg1) {
+                const ret = arg1.stack;
+                const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+                const len1 = WASM_VECTOR_LEN;
+                getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
+                getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
+            };
+            imports.wbg.__wbindgen_cast_2241b6af4c4b2941 = function(arg0, arg1) {
+                const ret = getStringFromWasm0(arg0, arg1);
+                return ret;
+            };
+            imports.wbg.__wbindgen_cast_d6cd19b81560fd6e = function(arg0) {
+                const ret = arg0;
+                return ret;
+            };
+            imports.wbg.__wbindgen_init_externref_table = function() {
+                const table = wasm.__wbindgen_externrefs;
+                const offset = table.grow(4);
+                table.set(0, undefined);
+                table.set(offset + 0, undefined);
+                table.set(offset + 1, null);
+                table.set(offset + 2, true);
+                table.set(offset + 3, false);
+            };
+            return imports;
+        }
+
+        function __wbg_finalize_init(instance, module) {
+            wasm = instance.exports;
+            cachedDataViewMemory0 = null;
+            cachedUint8ArrayMemory0 = null;
+            wasm.__wbindgen_start();
+            return wasm;
+        }
+
+        async function __wbg_init(module_or_path) {
+            if (wasm !== undefined) return wasm;
+            if (typeof module_or_path !== 'undefined') {
+                if (typeof module_or_path === 'string' || (typeof Request === 'function' && module_or_path instanceof Request) || (typeof URL === 'function' && module_or_path instanceof URL)) {
+                    console.log('Fetching WASM from:', module_or_path);
+                    try {
+                        const response = await fetch(module_or_path);
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                        }
+                        console.log('WASM fetch successful, Content-Type:', response.headers.get('Content-Type'));
+                        module_or_path = response;
+                    } catch (fetchError) {
+                        console.error('Failed to fetch WASM:', fetchError);
+                        throw new Error(`Failed to load WASM file: ${fetchError.message}`);
+                    }
+                }
+            }
+            const imports = __wbg_get_imports();
+            const { instance, module } = await __wbg_load(module_or_path, imports);
+            return __wbg_finalize_init(instance, module);
+        }
+
+        // Application code
+        let selectedFiles = [];
+        let isConverting = false;
+
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileListCard = document.getElementById('fileListCard');
+        const fileList = document.getElementById('fileList');
+        const qualitySlider = document.getElementById('qualitySlider');
+        const qualityValue = document.getElementById('qualityValue');
+        const jpegQualitySlider = document.getElementById('jpegQualitySlider');
+        const jpegQualityValue = document.getElementById('jpegQualityValue');
+        const maxWidthInput = document.getElementById('maxWidth');
+        const convertToJpegCheckbox = document.getElementById('convertToJpeg');
+        const convertAllBtn = document.getElementById('convertAllBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+
+        // Initialize WASM
+        // WASM Cache Busting: Update the version parameter when deploying new builds
+        // Format: 'image_convert_bg.wasm?v=X.Y.Z' (e.g., v=1.0.0, v=1.0.1, v=1.1.0)
+        const WASM_VERSION = 'v=1.0.0';
+
+        async function initWasm() {
+            try {
+                console.log('Loading WASM from: image_convert_bg.wasm?' + WASM_VERSION);
+                await __wbg_init('image_convert_bg.wasm?' + WASM_VERSION);
+                console.log('WASM initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize WASM:', error);
+                console.error('Error details:', error.message, error.stack);
+                alert('Failed to load WebAssembly module. Error: ' + error.message);
+            }
+        }
+
+        // Event listeners
+        qualitySlider.addEventListener('input', () => {
+            qualityValue.textContent = qualitySlider.value + '%';
+        });
+
+        jpegQualitySlider.addEventListener('input', () => {
+            jpegQualityValue.textContent = jpegQualitySlider.value + '%';
+        });
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        clearBtn.addEventListener('click', clearAll);
+
+        convertAllBtn.addEventListener('click', convertAll);
+
+        function handleFiles(files) {
+            for (const file of files) {
+                if (is_supported_image_file(file.name)) {
+                    if (!selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+                        selectedFiles.push(file);
+                    }
+                } else {
+                    console.warn(`Skipping unsupported file: ${file.name}`);
+                }
+            }
+            updateFileList();
+        }
+
+        function updateFileList() {
+            if (selectedFiles.length === 0) {
+                fileListCard.classList.add('hidden');
+                return;
+            }
+
+            fileListCard.classList.remove('hidden');
+            fileList.innerHTML = '';
+
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <div>
+                        <div class="file-name">${escapeHtml(file.name)}</div>
+                        <div class="file-status" id="status-${index}">Ready</div>
+                    </div>
+                    <div class="file-actions">
+                        <button class="btn-secondary" onclick="removeFile(${index})">Remove</button>
+                    </div>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        window.removeFile = function(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+        };
+
+        async function downloadFile(blobOrFile, filename) {
+            const url = URL.createObjectURL(blobOrFile instanceof Blob ? blobOrFile : new Blob([blobOrFile]));
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function clearAll() {
+            selectedFiles = [];
+            updateFileList();
+            fileInput.value = '';
+            progressContainer.classList.add('hidden');
+            progressFill.style.width = '0%';
+        }
+
+        async function convertAll() {
+            if (isConverting || selectedFiles.length === 0) return;
+
+            isConverting = true;
+            convertAllBtn.disabled = true;
+            convertAllBtn.textContent = 'Converting...';
+            progressContainer.classList.remove('hidden');
+
+            const webpQuality = parseInt(qualitySlider.value);
+            const jpegQuality = parseInt(jpegQualitySlider.value);
+            console.log(`Quality settings - WebP: ${webpQuality}%, JPEG: ${jpegQuality}%`);
+            const maxWidth = maxWidthInput.value ? parseInt(maxWidthInput.value) : null;
+            const convertToJpeg = convertToJpegCheckbox.checked;
+            
+            // Calculate total output files
+            const outputsPerFile = convertToJpeg ? 2 : 1;
+            const totalOutputFiles = selectedFiles.length * outputsPerFile;
+            const useZip = totalOutputFiles > 1;
+            
+            // Collect all outputs for zipping if needed
+            const zip = useZip ? new JSZip() : null;
+            const now = new Date();
+            const zipFilename = `converted_images_${now.toISOString().slice(0,10)}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}.zip`;
+
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const file = selectedFiles[i];
+                const statusEl = document.getElementById(`status-${i}`);
+                const fileItem = statusEl.closest('.file-item');
+
+                fileItem.classList.add('processing');
+                statusEl.textContent = 'Converting...';
+
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const imageBytes = new Uint8Array(arrayBuffer);
+
+                    const result = convert_image(
+                        imageBytes,
+                        file.name,
+                        webpQuality,
+                        jpegQuality,
+                        maxWidth,
+                        convertToJpeg
+                    );
+
+                    if (result.error) {
+                        throw new Error(result.error);
+                    }
+
+                    // Add WebP to zip or download directly
+                    if (result.webp_data) {
+                        const webpBytes = new Uint8Array(result.webp_data);
+                        console.log(`  ${result.filename}.webp: ${(webpBytes.length / 1024).toFixed(1)} KB`);
+                        if (useZip) {
+                            zip.file(`${result.filename}.webp`, webpBytes);
+                        } else {
+                            const webpBlob = new Blob([webpBytes], { type: 'image/webp' });
+                            await downloadFile(webpBlob, `${result.filename}.webp`);
+                        }
+                    }
+
+                    // Add JPEG to zip or download directly
+                    if (result.jpeg_data) {
+                        const jpegBytes = new Uint8Array(result.jpeg_data);
+                        console.log(`  ${result.filename}.jpg: ${(jpegBytes.length / 1024).toFixed(1)} KB`);
+                        if (useZip) {
+                            zip.file(`${result.filename}.jpg`, jpegBytes);
+                        } else {
+                            const jpegBlob = new Blob([jpegBytes], { type: 'image/jpeg' });
+                            await downloadFile(jpegBlob, `${result.filename}.jpg`);
+                        }
+                    }
+
+                    fileItem.classList.remove('processing');
+                    fileItem.classList.add('success');
+                    statusEl.textContent = 'Converted ✓';
+
+                } catch (error) {
+                    console.error('Conversion error:', error);
+                    fileItem.classList.remove('processing');
+                    fileItem.classList.add('error');
+                    statusEl.textContent = `Error: ${error.message}`;
+                }
+
+                // Update progress
+                const progress = ((i + 1) / selectedFiles.length) * 100;
+                progressFill.style.width = progress + '%';
+                progressText.textContent = `${i + 1} / ${selectedFiles.length}`;
+            }
+
+            // Download zip if multiple files
+            if (useZip && zip) {
+                progressText.textContent = 'Creating zip...';
+                const zipBlob = await zip.generateAsync({ type: 'blob' });
+                await downloadFile(zipBlob, zipFilename);
+            }
+
+            isConverting = false;
+            convertAllBtn.disabled = false;
+            convertAllBtn.textContent = 'Convert All';
+            
+            // Clear the file list after conversion
+            clearAll();
+        }
+
+        // Initialize on load
+        initWasm();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</body>
+</html>
